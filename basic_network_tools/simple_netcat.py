@@ -6,12 +6,14 @@ import sys
 import textwrap
 import threading
 
+
 def execute(cmd):
     cmd = cmd.strip()
     if not cmd:
         return
     output = subprocess.check_output(shlex.split(cmd), stderr=subprocess.STDOUT)
     return output.decode()
+
 
 class SimpleNetCat:
     def __init__(self, args, buffer=None):
@@ -57,7 +59,7 @@ class SimpleNetCat:
             output = execute(self.args.execute)
             client_socket.send(output.encode())
         elif self.args.upload:
-            file_buffer = b' '
+            file_buffer = b''
             while True:
                 data = client_socket.recv(4096)
                 if data:
@@ -69,7 +71,7 @@ class SimpleNetCat:
             message = f'Saved file {self.args.upload}'
             client_socket.send(message.encode())
         elif self.args.command:
-            cmd_buffer = b' '
+            cmd_buffer = b''
             while True:
                 try:
                     client_socket.send(b'BHP: #> ')
@@ -78,7 +80,7 @@ class SimpleNetCat:
                     response = execute(cmd_buffer.decode())
                     if response:
                         client_socket.send(response.encode())
-                    cmd_buffer = b' '
+                    cmd_buffer = b''
                 except Exception as e:
                     print(f'sever killed {e}')
                     self.socket.close()
@@ -89,6 +91,7 @@ class SimpleNetCat:
             self.listen()
         else:
             self.send()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Simple_Netcat', formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent('''Example:
@@ -106,7 +109,7 @@ if __name__ == "__main__":
     parser.add_argument('-u', '--upload', help='upload file')
     args = parser.parse_args()
     if args.listen:
-        buffer = ' '
+        buffer = ''
     else:
         buffer = sys.stdin.read()
 

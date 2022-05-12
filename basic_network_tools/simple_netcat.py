@@ -37,7 +37,7 @@ class SimpleNetCat:
         try:
             while True:
                 recv_len = 1
-                response = ' '
+                response = ''
                 while recv_len:
                     data = self.socket.recv(4096)
                     recv_len = len(data)

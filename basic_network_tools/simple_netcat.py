@@ -27,9 +27,9 @@ class SimpleNetCat:
         self.socket.listen(5)
         while True:
             client_socket, _ = self.socket.accept()
-            client_thread = threading.Thread(target=self.handle, args=(client_socket, ))
+            client_thread = threading.Thread(target=self.handle, args=(client_socket,))
             client_thread.start()
-    
+
     def send(self):
         self.socket.connect((self.args.target, self.args.port))
         if self.buffer:
@@ -76,7 +76,7 @@ class SimpleNetCat:
                 try:
                     client_socket.send(b'BHP: #> ')
                     while '\n' not in cmd_buffer.decode():
-                        cmd_buffer+=client_socket.recv(64)
+                        cmd_buffer += client_socket.recv(64)
                     response = execute(cmd_buffer.decode())
                     if response:
                         client_socket.send(response.encode())
@@ -94,13 +94,14 @@ class SimpleNetCat:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Simple_Netcat', formatter_class=argparse.RawDescriptionHelpFormatter, epilog=textwrap.dedent('''Example:
+    parser = argparse.ArgumentParser(description='Simple_Netcat', formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     epilog=textwrap.dedent('''Example:
     simple_netcat.py -t 192.168.1.2 -p 1234 -l -c #command shell
     simple_netcat.py -t 192.168.1.2 -p 1234 -l -u=sample.txt #upload to file
     simple_netcat.py -t 192.168.1.2 -p 1234 -l -e=\"cat /etc/passwd\" #execute command
     echo 'ABC' | ./simple_netcat.py -t 192.168.1.2 -p 1233 #echo text to server port 1233
     simple_netcat.py -t 192.168.1.2 -p 1234 #connect to server
-    ''')) 
+    '''))
     parser.add_argument('-c', '--command', action='store_true', help='command shell')
     parser.add_argument('-e', '--execute', help='execute specified command')
     parser.add_argument('-l', '--listen', action='store_true', help='listen')
@@ -115,4 +116,3 @@ if __name__ == "__main__":
 
     nc = SimpleNetCat(args, buffer.encode())
     nc.run()
-    

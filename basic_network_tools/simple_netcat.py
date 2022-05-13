@@ -46,7 +46,10 @@ class SimpleNetCat:
                         break
                 if response:
                     print(response)
-                    buffer = input('> ')
+                    try:
+                        buffer = input('> ')
+                    except EOFError:
+                        return
                     buffer += '\n'
                     self.socket.send(buffer.encode())
         except KeyboardInterrupt:

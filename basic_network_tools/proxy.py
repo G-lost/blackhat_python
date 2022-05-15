@@ -11,7 +11,7 @@ def hexdump(src, length = 16, show = True):
     for i in range(0, len(src), length):
         word = str(src[i:i+length])
         printable = word.translate(HEX_FILTER)
-        hexa = ''.join([f'{ord(c):02x}' for c in word])
+        hexa = ' '.join([f'{ord(c):02x}' for c in word])
         hexwidth = length*3
         results.append(f'{i:04x} {hexa:<{hexwidth}} {printable}')
     if show:
@@ -27,7 +27,7 @@ def hexdump(src, length = 16, show = True):
 
 def receive_from(connection):
     buffer = b""
-    connection.settimeout(5)
+    connection.settimeout(10)
     try:
         while True:
             data = connection.recv(4096)
@@ -53,31 +53,31 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 
     if receive_first:
         remote_buffer = receive_from(remote_socket)
+        print("[P<==R] Received %d bytes from remote." % len(remote_buffer))
         hexdump(remote_buffer)
 
     remote_buffer = response_handler(remote_buffer)
     if len(remote_buffer):
-        print("[<==] Sending %d bytes to localhosst." % len(remote_buffer))
+        print("[L<==P] Sending %d bytes to localhost." % len(remote_buffer))
         client_socket.send(remote_buffer)
         while True:
             local_buffer = receive_from(client_socket)
             if len(local_buffer):
-                line = "[==>] Receive %d bytes from localhost." % len(local_buffer)
-                print(line)
+                print("[L==>P] Received %d bytes from localhost." % len(local_buffer))
                 hexdump(local_buffer)
 
                 local_buffer  = request_handler(local_buffer)
                 remote_socket.send(local_buffer)
-                print("[==>] Send to remote.")
+                print("[P==>R] Sent to remote.")
 
             remote_buffer = receive_from(remote_socket)
             if len(remote_buffer):
-                print("[<==] Receive %d bytes from remote." % len(remote_buffer))
+                print("[P<==R] Received %d bytes from remote." % len(remote_buffer))
                 hexdump(remote_buffer)
 
                 remote_buffer = response_handler(remote_buffer)
                 client_socket.send(remote_buffer)
-                print("[<==] Send to localhost.")
+                print("[L<==P] Sent to localhost.")
 
             if not len(local_buffer) or not len(remote_buffer):
                 client_socket.close()
@@ -89,7 +89,7 @@ def proxy_handler(client_socket, remote_host, remote_port, receive_first):
 def server_loop(local_host, local_port, remote_host, remote_port, receive_first):
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        server.bind(local_host, local_port)
+        server.bind((local_host, local_port))
     except Exception as e:
         print("problem on bind: %r" % e)
 
@@ -98,10 +98,10 @@ def server_loop(local_host, local_port, remote_host, remote_port, receive_first)
         sys.exit()
 
     print("[*] Listening on %s:%d" % (local_host, local_port))
-    server.listen(5)
+    server.listen(10)
     while True:
         client_socket, addr = server.accept()
-        print(f'this is output of server.accept: {server.accept()}')
+        print(f'this is output of server.accept: {client_socket}')
         # print out local connection information
         line = "> Received incoming connection from %s:%d" % (addr[0], addr[1])
         print(line)
@@ -122,6 +122,11 @@ def main():
     remote_host = sys.argv[3]
     remote_port = int(sys.argv[4])
     receive_first = sys.argv[5]
+    # local_host = "192.168.31.236"
+    # local_port = 21
+    # remote_host = "ftp.sun.ac.za"
+    # remote_port = 21
+    # receive_first = "True"
     if "True" in receive_first:
         receive_first = True
     else:

@@ -1,0 +1,3 @@
+[submodule "dependency_lib/paramiko"]
+	path = dependency_lib/paramiko
+	url = git@github.com:paramiko/paramiko.git

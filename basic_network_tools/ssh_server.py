@@ -51,7 +51,7 @@ if __name__ ==  '__main__':
     chan = bhSession.accept(20)
     if chan is None:
         print('[!] No channel.')
-        sys.exit()
+        sys.exit(1)
     
     print('[*] Authenticated!')
     print(chan.recv(1024))
@@ -62,7 +62,7 @@ if __name__ ==  '__main__':
             if command != 'exit':
                 chan.send(command)
                 response =chan.recv(8129)
-                print(response.decode())
+                print(response.decode('GBK'))
             else:
                 chan.send('exit')
                 print('exiting...')

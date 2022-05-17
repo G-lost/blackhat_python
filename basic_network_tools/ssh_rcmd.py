@@ -27,9 +27,9 @@ def ssh_command(ip, port, user, passwd, cmd):
     return
 
 
-if __name__ == '__name__':
+if __name__ == '__main__':
     import getpass
-    user = getpass.getuser()
+    user = 'kali'
     passwd = getpass.getpass()
     ip = input('Enter server IP: ')
     port = input('Enter server port: ')

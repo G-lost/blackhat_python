@@ -2,7 +2,7 @@ import socket
 import os 
 
 
-HOST = '192.168.31.236'
+HOST = '192.168.31.28'
 
 
 def main():

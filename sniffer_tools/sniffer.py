@@ -2,7 +2,16 @@ import socket
 import os 
 
 
-HOST = '192.168.31.28'
+
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    IP = str(s.getsockname()[0])
+    s.close()
+    return IP
+
+
+HOST = get_ip()
 
 
 def main():

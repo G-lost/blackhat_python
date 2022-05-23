@@ -7,8 +7,8 @@ import sys
 
 class IP(Structure):
     _fields_ = [
-        ("version",        c_ubyte,    4),
         ("headerLen",      c_ubyte,    4),
+        ("version",        c_ubyte,    4),
         ("typeOfService",  c_ubyte,    8),
         ("len",            c_ushort,  16),
         ("id",             c_ushort,  16),
@@ -29,6 +29,7 @@ class IP(Structure):
 
         self.flag = self.offset >> 13
         self.fragmentOffset = self.offset and 0xffff
+        print(f'offset: {self.offset}, flags: {self.flag}, foffset: {self.fragmentOffset}')
         self.protocol_map = {1: "ICMP", 6: "TCP", 17: "UDP"}
         try:
             self.protocol = self.protocol_map[self.protocol_num]
@@ -49,6 +50,10 @@ class ICMP(Structure):
     def __new__(cls, socket_buffer = None):
         return cls.from_buffer_copy(socket_buffer)
 
+    def __init__(self, socket_buffer = None) -> None:
+        pass
+
+
 
 def sniff(host):
     if os.name == 'nt':
@@ -68,14 +73,13 @@ def sniff(host):
         while True:
             raw_buffer = sniffer.recvfrom(65535)[0]
             ip_header = IP(raw_buffer[0:20])
-            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address}')
+            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address} | flag: {ip_header.flag}')
             if ip_header.protocol == "ICMP":
                 print(f'Version: {ip_header.version}')
-                print(f'Header Length: {ip_header.headerLen} TTL: {ip_header.ttl}')
+                print(f'Header Length: {ip_header.headerLen} byte(s) TTL: {ip_header.ttl}')
 
                 offset = ip_header.headerLen * 4
-                buf = raw_buffer[offset:offset+8]
-                icmp_header = ICMP(buf)
+                icmp_header = ICMP(raw_buffer[offset:offset+8])
                 print(f'ICMP -> Type: {icmp_header.type}, Code: {icmp_header.code}')
 
     except KeyboardInterrupt:

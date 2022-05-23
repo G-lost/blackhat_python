@@ -14,7 +14,8 @@ class IP:
         self.len = header[2]
         self.id = header[3]
         self.flag = header[4] >> 13
-        self.fragmentOffset = header[4] and 0xffff
+        self.fragmentOffset = header[4] & 0xffff
+        self.offset = header[4]
         self.ttl = header[5]
         self.protocol_num = header[6]
         self.sum = header[7]
@@ -24,6 +25,7 @@ class IP:
         self.src_address = ipaddress.ip_address(self.src)
         self.dst_address = ipaddress.ip_address(self.dst)
 
+        print(f'version: {self.version}, headerlength: {self.headerLen}, offset: {self.offset}, flags: {self.flag}, foffset: {self.fragmentOffset}')
         self.protocol_map = {1: "ICMP", 6: "TCP", 17: "UDP"}
         try:
             self.protocol = self.protocol_map[self.protocol_num]

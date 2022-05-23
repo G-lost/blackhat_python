@@ -63,9 +63,17 @@ def sniff(host):
         sys.exit()
 
 
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = str(s.getsockname()[0])
+    s.close()
+    return ip
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         host = sys.argv[1]
     else:
-        host = '192.168.31.28'
+        host = str(get_ip())
     sniff(host)

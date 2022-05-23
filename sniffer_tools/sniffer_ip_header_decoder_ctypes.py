@@ -37,6 +37,19 @@ class IP(Structure):
             self.protocol = str(self.protocol_num)
 
 
+class ICMP(Structure):
+    _fields_ = [
+        ("type", c_ubyte,   8),
+        ("code", c_ubyte,   8),
+        ("sum",  c_ushort, 16),
+        ("id",   c_ushort, 16),
+        ("seq",  c_ushort, 16),
+    ]
+
+    def __new__(cls, socket_buffer = None):
+        return cls.from_buffer_copy(socket_buffer)
+
+
 def sniff(host):
     if os.name == 'nt':
         socket_protocol = socket.IPPROTO_IP
@@ -56,6 +69,14 @@ def sniff(host):
             raw_buffer = sniffer.recvfrom(65535)[0]
             ip_header = IP(raw_buffer[0:20])
             print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address}')
+            if ip_header.protocol == "ICMP":
+                print(f'Version: {ip_header.version}')
+                print(f'Header Length: {ip_header.headerLen} TTL: {ip_header.ttl}')
+
+                offset = ip_header.headerLen * 4
+                buf = raw_buffer[offset:offset+8]
+                icmp_header = ICMP(buf)
+                print(f'ICMP -> Type: {icmp_header.type}, Code: {icmp_header.code}')
 
     except KeyboardInterrupt:
         if os.name == 'nt':

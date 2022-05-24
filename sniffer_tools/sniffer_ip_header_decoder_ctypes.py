@@ -26,10 +26,15 @@ class IP(Structure):
     def __init__(self, socket_buffer = None):
         self.src_address = socket.inet_ntoa(struct.pack("<L", self.src))
         self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
+        self.real_offset = socket.ntohs(self.offset)
+        self.real_len = socket.ntohs(self.len)
+        self.real_id = socket.ntohs(self.id)
+        self.flag = self.real_offset >> 13
+        self.flag = self.flag << 1
+        self.flag = format(self.flag, '#x')
+        self.fragmentOffset = self.real_offset & 0x1fff
 
-        self.flag = self.offset >> 13
-        self.fragmentOffset = self.offset & 0xffff
-        print(f'offset: {bin(self.offset)}, flags: {bin(self.flag)}, fragment_offset: {bin(self.fragmentOffset)}')
+        # print(f'offset: {self.real_offset:016b}({self.real_offset}), flags: ({self.flag}), fragment_offset: {self.fragmentOffset:016b}({self.fragmentOffset})')
         self.protocol_map = {1: "ICMP", 6: "TCP", 17: "UDP"}
         try:
             self.protocol = self.protocol_map[self.protocol_num]
@@ -73,11 +78,9 @@ def sniff(host):
         while True:
             raw_buffer = sniffer.recvfrom(65535)[0]
             ip_header = IP(raw_buffer[0:20])
-            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address} | flag: {ip_header.flag}')
-            if ip_header.protocol == "ICMP":
-                print(f'Version: {ip_header.version}')
-                print(f'Header Length: {ip_header.headerLen} byte(s) TTL: {ip_header.ttl}')
+            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address} | Version: {ip_header.version} | Header Length: {ip_header.headerLen} byte(s) | TTL: {ip_header.ttl} | Total Length: {ip_header.real_len} | ID: {ip_header.real_id} | Offset: {ip_header.real_offset} | flag: {ip_header.flag} | Fragment Offset: {ip_header.fragmentOffset}')
 
+            if ip_header.protocol == "ICMP":
                 offset = ip_header.headerLen * 4
                 icmp_header = ICMP(raw_buffer[offset:offset+8])
                 print(f'ICMP -> Type: {icmp_header.type}, Code: {icmp_header.code}')

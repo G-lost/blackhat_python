@@ -28,8 +28,8 @@ class IP(Structure):
         self.dst_address = socket.inet_ntoa(struct.pack("<L", self.dst))
 
         self.flag = self.offset >> 13
-        self.fragmentOffset = self.offset and 0xffff
-        print(f'offset: {self.offset}, flags: {self.flag}, foffset: {self.fragmentOffset}')
+        self.fragmentOffset = self.offset & 0xffff
+        print(f'offset: {bin(self.offset)}, flags: {bin(self.flag)}, fragment_offset: {bin(self.fragmentOffset)}')
         self.protocol_map = {1: "ICMP", 6: "TCP", 17: "UDP"}
         try:
             self.protocol = self.protocol_map[self.protocol_num]

@@ -46,7 +46,7 @@ class IP(Structure):
         try:
             self.protocol = self.protocol_map[self.protocol_num]
         except Exception as e:
-            print('%s %s is Unknown Protocol', e, self.protocol_num)
+            print(f'{e} {self.protocol_num} is Unknown Protocol')
             self.protocol = str(self.protocol_num)
 
 
@@ -100,7 +100,7 @@ class Scanner:
                 
         except KeyboardInterrupt:
             if os.name == 'nt':
-                self.socket.ioctl(socket.SIO_RCALL, socket.RCVALL_OFF)
+                self.socket.ioctl(socket.SIO_RCVALL, socket.RCVALL_OFF)
 
             print('\nUser Interrupted')
             if host_up:
@@ -121,6 +121,7 @@ def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.connect(("8.8.8.8", 80))
     ip = str(s.getsockname()[0])
+    print(f'get_ip get ip address: {ip}')
     s.close()
     return ip
 

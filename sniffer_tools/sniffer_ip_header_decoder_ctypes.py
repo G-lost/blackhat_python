@@ -31,7 +31,7 @@ class IP(Structure):
         self.real_id = socket.ntohs(self.id)
         self.flag = self.real_offset >> 13
         self.flag = self.flag << 1
-        self.flag = format(self.flag, '#x')
+        # self.flag = format(self.flag, '#x')
         self.fragmentOffset = self.real_offset & 0x1fff
 
         # print(f'offset: {self.real_offset:016b}({self.real_offset}), flags: ({self.flag}), fragment_offset: {self.fragmentOffset:016b}({self.fragmentOffset})')
@@ -78,12 +78,12 @@ def sniff(host):
         while True:
             raw_buffer = sniffer.recvfrom(65535)[0]
             ip_header = IP(raw_buffer[0:20])
-            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address} | Version: {ip_header.version} | Header Length: {ip_header.headerLen} byte(s) | TTL: {ip_header.ttl} | Total Length: {ip_header.real_len} | ID: {ip_header.real_id} | Offset: {ip_header.real_offset} | flag: {ip_header.flag} | Fragment Offset: {ip_header.fragmentOffset}')
+            print(f'Protocol: {ip_header.protocol} | {ip_header.src_address} -> {ip_header.dst_address} | Version: {ip_header.version} | Header Length: {ip_header.headerLen} byte(s) | TTL: {ip_header.ttl} | Total Length: {ip_header.real_len} | ID: {ip_header.real_id} | Offset: {ip_header.real_offset} | flag: {ip_header.flag:#x}| Fragment Offset: {ip_header.fragmentOffset}\n')
 
             if ip_header.protocol == "ICMP":
                 offset = ip_header.headerLen * 4
                 icmp_header = ICMP(raw_buffer[offset:offset+8])
-                print(f'ICMP -> Type: {icmp_header.type}, Code: {icmp_header.code}')
+                print(f'ICMP -> Type: {icmp_header.type}, Code: {icmp_header.code}\n')
 
     except KeyboardInterrupt:
         if os.name == 'nt':

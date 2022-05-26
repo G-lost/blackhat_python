@@ -87,7 +87,6 @@ class Scanner:
                 raw_buffer = self.socket.recvfrom(65535)[0]
                 ip_header = IP(raw_buffer[0:20])
                 if ip_header.protocol == 'ICMP':
-                    print(ip_header.src_address)
                     offset = ip_header.headerLen*4
                     buf = raw_buffer[offset:offset+8]
                     icmp_header = ICMP(buf)
